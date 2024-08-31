@@ -12,15 +12,12 @@ import Url exposing ( Url )
 -- Datenmodell und Effekte für den Start der Anwendung
 init : {} -> Url -> Nav.Key -> { model : Model , command : Cmd Msg }
 init {} url key =
-    let
-        initialModel = Model.init key
-    in
-        { model = initialModel
-        , command =
-            Cmd.batch
-                [ Cmd.getViewport
-                , Cmd.initPasswords
-                , Cmd.initPwgenOptions
-                , Cmd.localStorageGet "theme"
-                ]
-        }
+    { model = Model.init key
+    , command =
+        Cmd.batch
+            [ Cmd.getViewport
+            , Cmd.initPasswords
+            , Cmd.initPwgenOptions
+            , Cmd.localStorageGet "theme"
+            ]
+    }

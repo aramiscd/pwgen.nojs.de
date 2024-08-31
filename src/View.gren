@@ -19,34 +19,41 @@ app mdl =
         [ Hyper.div
             |> Hyper.style "user-select" "none"
             |> Hyper.style "min-height" "100vh"
-            |> Hyper.class "flex flex-col items-center gap-11 p-5"
+            |> Hyper.class "flex flex-col items-center p-5 min-h-screen"
             |> Hyper.attribute "data-theme" ( Theme.toString mdl.theme )
             |> Hyper.children
                 [ Hyper.div
-                    |> Hyper.class "flex flex-col items-center gap-3"
+                    |> Hyper.class "flex flex-col items-start gap-3 grow"
                     |> Hyper.children
-                        [ Hyper.div -- header
-                            |> Hyper.class "flex flex-row justify-between gap-2 w-96 px-8"
-                            |> Hyper.children
-                                [ Hyper.h1
-                                    |> Hyper.class "text-xl font-ight tracking-wide"
-                                    |> Hyper.children [ Hyper.text "Erzeuge Passwörter" ]
-                                , Components.themeController mdl.theme
-                                ]
+                        [ header mdl
                         , options mdl.pwgenOptions
+                        , if mdl.showPasswords then passwords mdl.passwords else Hyper.text ""
                         ]
-                , if mdl.showPasswords then passwords mdl.passwords else Hyper.text ""
+                , footer
                 ]
             |> Hyper.compile
         ]
     }
 
 
+-- Header
+header : Model -> Hyper.Node Msg
+header mdl =
+    Hyper.div
+        |> Hyper.class "flex flex-row justify-between gap-2 w-96 px-8"
+        |> Hyper.children
+            [ Hyper.h1
+                |> Hyper.class "text-xl font-ight tracking-wide"
+                |> Hyper.children [ Hyper.text "Erzeuge Passwörter" ]
+            , Components.themeController mdl.theme
+            ]
+
+
 -- Optionen
 options : Pwgen.Options -> Hyper.Node Msg
 options opts =
     Hyper.div
-        |> Hyper.class "card bg-base-200 w-96 shadow-xl"
+        |> Hyper.class "card bg-base-300 w-96"
         |> Hyper.children
             [ Hyper.div
                 |> Hyper.class "card-body"
@@ -127,7 +134,7 @@ sliders opts =
 passwords : Array String -> Hyper.Node Msg
 passwords pws =
     Hyper.div
-        |> Hyper.class "flex flex-col items-center gap-2 truncate"
+        |> Hyper.class "flex flex-col items-center gap-2 truncate py-3"
         |> Hyper.children ( Array.map password pws )
 
 
@@ -142,9 +149,35 @@ password pw =
             else str
     in
         Hyper.div
-            |> Hyper.class "btn font-mono w-96"
+            |> Hyper.class "btn font-mono bg-base-300 w-96"
             |> Hyper.onClick ( Msg.CmdCopyToClipboard pw )
             |> Hyper.children [ Hyper.text ( trim pw ) ]
+
+
+-- Footer
+footer =
+    Hyper.div
+        |> Hyper.class "flex gap-7 pt-7 text-xs text-gray-500"
+        |> Hyper.children
+            [ Hyper.div
+                |> Hyper.children
+                    [ Hyper.a
+                        |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/src/Main.gren"
+                        |> Hyper.children [ Hyper.text "Quelltext" ]
+                    ]
+            , Hyper.div
+                |> Hyper.children
+                    [ Hyper.a
+                        |> Hyper.href "https://raw.githubusercontent.com/aramiscd/pwgen.nojs.de/master/LICENSE"
+                        |> Hyper.children [ Hyper.text "Lizenz" ]
+                    ]
+            , Hyper.div
+                |> Hyper.children
+                    [ Hyper.a
+                        |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/vertrauen.md"
+                        |> Hyper.children [ Hyper.text "Vertrauen" ]
+                    ]
+            ]
 
 
 
