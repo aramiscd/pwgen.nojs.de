@@ -1,0 +1,161 @@
+module View exposing
+    ( app
+    )
+
+import Browser
+import Hyper
+import Model exposing ( Model )
+import Msg as Msg exposing ( Msg )
+import Pwgen
+import Theme
+import View.Components as Components
+
+
+-- Gesamte Anwendung
+app : Model -> Browser.Document Msg
+app mdl =
+    { title = "pwgen.nojs.de"
+    , body =
+        [ Hyper.div
+            |> Hyper.style "user-select" "none"
+            |> Hyper.style "min-height" "100vh"
+            |> Hyper.class "flex flex-col items-center gap-11 p-5"
+            |> Hyper.attribute "data-theme" ( Theme.toString mdl.theme )
+            |> Hyper.children
+                [ Hyper.div
+                    |> Hyper.class "flex flex-col items-center gap-3"
+                    |> Hyper.children
+                        [ Hyper.div -- header
+                            |> Hyper.class "flex flex-row justify-between gap-2 w-96 px-8"
+                            |> Hyper.children
+                                [ Hyper.h1
+                                    |> Hyper.class "text-xl font-ight tracking-wide"
+                                    |> Hyper.children [ Hyper.text "Erzeuge Passwörter" ]
+                                , Components.themeController mdl.theme
+                                ]
+                        , options mdl.pwgenOptions
+                        ]
+                , if mdl.showPasswords then passwords mdl.passwords else Hyper.text ""
+                ]
+            |> Hyper.compile
+        ]
+    }
+
+
+-- Optionen
+options : Pwgen.Options -> Hyper.Node Msg
+options opts =
+    Hyper.div
+        |> Hyper.class "card bg-base-200 w-96 shadow-xl"
+        |> Hyper.children
+            [ Hyper.div
+                |> Hyper.class "card-body"
+                |> Hyper.children
+                    [ toggles opts
+                    , sliders opts
+                    ]
+            ]
+
+
+-- Schalter
+toggles : Pwgen.Options -> Hyper.Node Msg
+toggles opts =
+    Hyper.div
+        |> Hyper.children
+            [ Components.labeledCheckbox
+                { label = "Verwende Kleinbuchstaben"
+                , checked = opts.withLowercaseLetters
+                , inputMsg = Msg.UiPwgenOptionToggle { opts | withLowercaseLetters = not opts.withLowercaseLetters }
+                }
+            , Components.labeledCheckbox
+                { label = "Verwende Großbuchstaben"
+                , checked = opts.withUppercaseLetters
+                , inputMsg = Msg.UiPwgenOptionToggle { opts | withUppercaseLetters = not opts.withUppercaseLetters }
+                }
+            , Components.labeledCheckbox
+                { label = "Verwende Ziffern"
+                , checked = opts.withDigits
+                , inputMsg = Msg.UiPwgenOptionToggle { opts | withDigits = not opts.withDigits }
+                }
+            , Components.labeledCheckbox
+                { label = "Verwende Sonderzeichen"
+                , checked = opts.withSpecialChars
+                , inputMsg = Msg.UiPwgenOptionToggle { opts | withSpecialChars = not opts.withSpecialChars }
+                }
+            ]
+
+
+-- Schieberegler
+sliders : Pwgen.Options -> Hyper.Node Msg
+sliders opts =
+    let
+        label1 =
+            "Verwende " ++ String.fromInt opts.passwordLength ++ " Zeichen pro Passwort"
+        
+        inputMsg1 input =
+            Msg.UiPwgenOptionSlide
+                { opts | passwordLength = String.toInt input |> Maybe.withDefault opts.passwordLength }
+        
+        label2 =
+            "Erzeuge " ++ String.fromInt opts.howMany
+                ++ ( if opts.howMany == 1 then " Passwort" else " Passwörter")
+        
+        inputMsg2 input =
+            Msg.UiPwgenOptionSlide
+                { opts | howMany = String.toInt input |> Maybe.withDefault opts.howMany }
+    in
+        Hyper.div
+            |> Hyper.children
+                [ Components.labeledSlider
+                    { label = label1
+                    , value = opts.passwordLength
+                    , valueMin = opts.passwordLengthMin
+                    , valueMax = opts.passwordLengthMax
+                    , inputMsg = inputMsg1
+                    }
+                , Components.labeledSlider
+                    { label = label2
+                    , value = opts.howMany
+                    , valueMin = opts.howManyMin
+                    , valueMax = opts.howManyMax
+                    , inputMsg = inputMsg2
+                    } 
+                ]
+
+
+-- Passwörter
+passwords : Array String -> Hyper.Node Msg
+passwords pws =
+    Hyper.div
+        |> Hyper.class "flex flex-col items-center gap-2 truncate"
+        |> Hyper.children ( Array.map password pws )
+
+
+-- Passwort
+password : String -> Hyper.Node Msg
+password pw =
+    let
+        maxLength = 42
+        trim str =
+            if String.length str > maxLength
+            then String.left ( maxLength - 1 ) str ++ "…"
+            else str
+    in
+        Hyper.div
+            |> Hyper.class "btn font-mono w-96"
+            |> Hyper.onClick ( Msg.CmdCopyToClipboard pw )
+            |> Hyper.children [ Hyper.text ( trim pw ) ]
+
+
+
+-- Hilfsfunktionen
+
+
+when : Bool -> ( a -> a ) -> a -> a
+when pred func value =
+    if pred then func value else value
+
+
+unless : Bool -> ( a -> a ) -> a -> a
+unless pred =
+    when ( not pred )

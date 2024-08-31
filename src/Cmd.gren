@@ -1,0 +1,136 @@
+port module Cmd exposing
+    ( copyToClipboard
+    , generatePasswords
+    , getViewport
+    , initPasswords
+    , initPwgenOptions
+    , localStorageClear
+    , localStorageGet
+    , localStorageRemove
+    , localStorageSet
+    , openInNewTab
+    , storePwgenOptions
+    , when
+    )
+
+import Browser.Dom
+import Browser.Navigation
+import LocalStorage
+import Math
+import Model exposing ( Model )
+import Msg exposing ( Msg )
+import Process
+import Pwgen
+import Random
+import Task
+
+
+-- Kopiere Text in die Zwischenablage des Systems
+port copyToClipboard : String -> Cmd msg
+
+
+-- Generiere Passwörter
+generatePasswords : Pwgen.Options -> Cmd Msg
+generatePasswords pwgenOptions =
+    Random.generate Msg.SetPasswords ( Pwgen.generate pwgenOptions )
+
+
+-- Ermittle die aktuelle Höhe und Breite der Ansicht
+getViewport : Cmd Msg
+getViewport =
+    Task.perform
+        ( \ vp ->
+            Msg.SetViewport
+                { height = Math.floor vp.viewport.height
+                , width = Math.floor vp.viewport.width
+                }
+        )
+        Browser.Dom.getViewport
+
+
+-- Warte auf das Laden der Optionen aus dem LocalStorage und generiere Paswörter
+initPasswords : Cmd Msg
+initPasswords =
+    Task.perform
+        ( \ _ -> Msg.CmdGeneratePasswords )
+        ( Process.sleep 1000 |> Task.andThen ( \ _ -> Task.succeed {} ) )
+
+
+-- Lies die Pwgen-Optionen aus dem LocalStorage
+initPwgenOptions : Cmd Msg
+initPwgenOptions =
+    Cmd.batch
+        [ localStorageGet "howMany"
+        , localStorageGet "passwordLength"
+        , localStorageGet "withDigits"
+        , localStorageGet "withLowercaseLetters"
+        , localStorageGet "withSpecialChars"
+        , localStorageGet "withUppercaseLetters"
+        ]
+
+
+-- Lösche den kompletten LocalStorage
+localStorageClear : Cmd Msg
+localStorageClear =
+    LocalStorage.clear
+        |> Task.onError ( \ _ -> Task.succeed {} )
+        |> Task.execute
+
+
+-- Lies einen Wert aus dem Local Storage
+localStorageGet : String -> Cmd Msg
+localStorageGet key =
+    LocalStorage.get key
+        |> Task.map Just
+        |> Task.onError ( \ _ -> Task.succeed Nothing )
+        |> Task.perform ( Msg.SetFromLocalStorage key )
+
+
+-- Lösche ein Schlüssel-Wert-Paar aus dem Local Storage
+localStorageRemove : String -> Cmd Msg
+localStorageRemove key =
+    LocalStorage.remove key
+        |> Task.onError ( \ _ -> Task.succeed {} )
+        |> Task.execute
+
+
+-- Speichere ein Schlüssel-Wert-Paar im Local Storage
+localStorageSet : String -> String -> Cmd Msg
+localStorageSet key value =
+    LocalStorage.set key value
+        |> Task.onError ( \ _ -> Task.succeed {} )
+        |> Task.execute
+
+
+-- Öffne einen URL in einem neuen Browser-Tab (oder Browser-Fenster)
+port openInNewTab : String -> Cmd msg
+
+
+-- Speichere die Pwgen-Optionen im LocalStorage
+storePwgenOptions : Pwgen.Options -> Cmd Msg
+storePwgenOptions opts =
+    Cmd.batch
+        [ localStorageSet "howMany" ( String.fromInt opts.howMany )
+        , localStorageSet "passwordLength" ( String.fromInt opts.passwordLength )
+        , localStorageSet "withDigits" ( fromBool opts.withDigits )
+        , localStorageSet "withLowercaseLetters" ( fromBool opts.withLowercaseLetters )
+        , localStorageSet "withSpecialChars" ( fromBool opts.withSpecialChars )
+        , localStorageSet "withUppercaseLetters" ( fromBool opts.withUppercaseLetters )
+        ]
+
+
+-- Bedingter Befehl
+when : Bool -> Cmd Msg -> Cmd Msg
+when condition command =
+    if condition then command else Cmd.none
+
+
+
+--- Hilfsfunktionen
+
+
+fromBool : Bool -> String
+fromBool bool =
+    case bool of
+        False -> "false"
+        True -> "true"

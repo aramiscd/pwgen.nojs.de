@@ -1,0 +1,31 @@
+module Msg exposing
+    ( Msg (..)
+    )
+
+import Browser
+import Pwgen
+import Time
+import Url exposing ( Url )
+
+
+-- Interne Benachrichtigungen
+type Msg
+
+    -- Model Updates
+    = SetFromLocalStorage String ( Maybe String )
+    | SetPasswords ( Array String )
+    | SetTimeLastActivity Time.Posix
+    | SetViewport { height : Int , width : Int }
+    
+    -- Befehle
+    | CmdCopyToClipboard String
+    | CmdGeneratePasswords
+    | CmdStore String
+    | CmdUrlChange Url
+    | CmdUrlRequest Browser.UrlRequest
+
+    -- Kombinationen
+    | Tick Time.Posix
+    | UiPwgenOptionSlide Pwgen.Options
+    | UiPwgenOptionToggle Pwgen.Options
+    | UiThemeToggle

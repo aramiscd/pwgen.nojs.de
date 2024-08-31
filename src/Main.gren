@@ -1,0 +1,24 @@
+module Main exposing
+    ( main
+    )
+
+import Browser
+import Init exposing ( init )
+import Model exposing ( Model )
+import Msg exposing ( Msg )
+import Subscriptions exposing ( subscriptions )
+import Update exposing ( update )
+import View
+
+
+-- Hauptprogramm
+main : Program {} Model Msg
+main =
+    Browser.application
+        { init = init
+        , onUrlChange = Msg.CmdUrlChange
+        , onUrlRequest = Msg.CmdUrlRequest
+        , subscriptions = subscriptions
+        , update = update
+        , view = View.app
+        }

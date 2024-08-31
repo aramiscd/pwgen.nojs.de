@@ -1,0 +1,41 @@
+module Theme exposing
+    ( Theme (..)
+    , default
+    , fromString
+    , toString
+    , toggle
+    )
+
+
+-- UI Thema
+type Theme = Dark | Light
+
+
+-- Default UI Thema
+default : Theme
+default = Dark
+
+
+
+-- Übersetze einen String in einen Theme-Wert
+fromString : String -> Maybe Theme
+fromString str =
+    case str of
+        "dark" -> Just Dark
+        "light" -> Just Light
+        _ -> Nothing
+
+
+-- Übersetze einen Theme-Wert in einen String
+toString : Theme -> String
+toString theme =
+    case theme of
+        Dark -> "dark"
+        Light -> "light"
+
+
+toggle : Theme -> Theme
+toggle theme =
+    case theme of
+        Dark -> Light
+        Light -> Dark

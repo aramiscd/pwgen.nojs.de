@@ -1,0 +1,82 @@
+module Pwgen exposing
+    ( generate
+    , Options
+    , defaultOptions
+    )
+
+import Random
+
+
+-- Optionen für die Erzeugung eines Passworts
+type alias Options =
+    { howMany : Int
+    , howManyMin : Int
+    , howManyMax : Int
+    , passwordLength : Int
+    , passwordLengthMin : Int
+    , passwordLengthMax : Int
+    , withDigits : Bool
+    , withSpecialChars : Bool
+    , withLowercaseLetters : Bool
+    , withUppercaseLetters : Bool
+    }
+
+
+-- Standardoptionen für die Erzeugung eines Passworts
+defaultOptions : Options
+defaultOptions =
+    { howMany = 5
+    , howManyMin = 1
+    , howManyMax = 20
+    , passwordLength = 32
+    , passwordLengthMin = 12
+    , passwordLengthMax = 128
+    , withDigits = True
+    , withSpecialChars = False
+    , withLowercaseLetters = True
+    , withUppercaseLetters = True
+    }
+
+
+-- Zufallsgenerator für mehrere Passwörter
+generate : Options -> Random.Generator ( Array String )
+generate options =
+    generatePassword options
+        |> Random.array options.howMany
+
+
+-- Zufallsgenerator für ein Passwort
+generatePassword : Options -> Random.Generator String
+generatePassword options =
+    genChar options
+        |> Random.array options.passwordLength
+        |> Random.map String.fromArray
+
+
+-- Zeichenbasis für ein Passwort
+alphabet :
+    { digits : Array Char
+    , lowercaseLetters : Array Char
+    , uppercaseLetters : Array Char
+    , specialChars : Array Char
+    }
+alphabet =
+    { digits = String.toArray "0123456789"
+    , lowercaseLetters = String.toArray "abcdefghijklmnopqrstuvwxyz"
+    , uppercaseLetters = String.toArray "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    , specialChars = String.toArray "!\"#$%&'()*n,-./:;<=>?@[\\]^_`{|}~"
+    }
+
+
+-- Generiere ein einzelnes Zeichen
+genChar : Options -> Random.Generator Char
+genChar options =
+    [ if options.withDigits then alphabet.digits else []
+    , if options.withLowercaseLetters then alphabet.lowercaseLetters else []
+    , if options.withUppercaseLetters then alphabet.uppercaseLetters else []
+    , if options.withSpecialChars then alphabet.specialChars else []
+    ]
+        |> Array.flatten
+        |> Array.popFirst
+        |> Maybe.map ( \ x -> Random.uniform x.first x.rest )
+        |> Maybe.withDefault ( Random.uniform '?' [] )

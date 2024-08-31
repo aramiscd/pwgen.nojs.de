@@ -1,0 +1,26 @@
+module Init exposing
+    ( init
+    )
+
+import Browser.Navigation as Nav
+import Cmd
+import Model exposing ( Model )
+import Msg exposing ( Msg )
+import Url exposing ( Url )
+
+
+-- Datenmodell und Effekte für den Start der Anwendung
+init : {} -> Url -> Nav.Key -> { model : Model , command : Cmd Msg }
+init {} url key =
+    let
+        initialModel = Model.init key
+    in
+        { model = initialModel
+        , command =
+            Cmd.batch
+                [ Cmd.getViewport
+                , Cmd.initPasswords
+                , Cmd.initPwgenOptions
+                , Cmd.localStorageGet "theme"
+                ]
+        }

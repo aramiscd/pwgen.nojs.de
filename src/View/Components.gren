@@ -1,0 +1,130 @@
+module View.Components exposing
+    ( labeledCheckbox
+    , labeledSlider
+    , themeController
+    )
+
+import Hyper
+import Msg exposing ( Msg )
+import Svg
+import Svg.Attributes
+import Theme exposing ( Theme )
+
+
+type alias LabeledCheckboxArgs =
+    { label : String
+    , checked : Bool
+    , inputMsg : Msg
+    }
+
+
+labeledCheckbox : LabeledCheckboxArgs -> Hyper.Node Msg
+labeledCheckbox args =
+    Hyper.label
+        |> Hyper.class "label cursor-pointer"
+        |> Hyper.onClick args.inputMsg
+        |> Hyper.children
+            [ Hyper.span
+                |> Hyper.class "label-text"
+                |> unless args.checked ( Hyper.class "text-gray-500" )
+                |> Hyper.children [ Hyper.text args.label ]
+            , Hyper.input
+                |> Hyper.type_ "checkbox"
+                |> Hyper.class "toggle"
+                |> Hyper.checked args.checked
+                
+            ]
+
+
+type alias LabeledSliderArgs =
+    { label : String
+    , value : Int
+    , valueMin : Int
+    , valueMax : Int
+    , inputMsg : String -> Msg
+    }
+
+
+labeledSlider : LabeledSliderArgs -> Hyper.Node Msg
+labeledSlider args =
+    Hyper.div
+        |> Hyper.class "py-2"
+        |> Hyper.children
+            [ Hyper.div
+                |> Hyper.class "text-sm mb-2"
+                |> Hyper.children [ Hyper.text args.label ]
+            , Hyper.input
+                |> Hyper.type_ "range"
+                |> Hyper.class "range"
+                |> Hyper.min ( String.fromInt args.valueMin )
+                |> Hyper.max ( String.fromInt args.valueMax )
+                |> Hyper.value ( String.fromInt args.value )
+                |> Hyper.onInput args.inputMsg
+            ]
+
+
+themeController : Theme -> Hyper.Node Msg
+themeController theme =
+    Hyper.label
+        |> Hyper.class "grid cursor-pointer place-items-center"
+        |> Hyper.children
+            [ Hyper.input
+                |> Hyper.type_ "checkbox"
+                |> Hyper.value "synthwave"
+                |> Hyper.onClick Msg.UiThemeToggle
+                |> Hyper.checked ( theme == Theme.Dark )
+                |> Hyper.attribute "data-theme" ( Theme.toString ( Theme.toggle theme ) )
+                |> Hyper.class "toggle theme-controller bg-base-content col-span-2 col-start-1 row-start-1"
+            , Hyper.inline <| Svg.svg
+                [ Svg.Attributes.class "stroke-base-100 fill-base-100 col-start-1 row-start-1"
+                , Svg.Attributes.width "14"
+                , Svg.Attributes.height "14"
+                , Svg.Attributes.viewBox "0 0 24 24"
+                , Svg.Attributes.fill "none"
+                , Svg.Attributes.stroke "currentColor"
+                , Svg.Attributes.strokeWidth "2"
+                , Svg.Attributes.strokeLinecap "round"
+                , Svg.Attributes.strokeLinejoin "round"
+                ]
+                [ Svg.circle
+                    [ Svg.Attributes.cx "12"
+                    , Svg.Attributes.cy "12"
+                    , Svg.Attributes.r "5"
+                    ]
+                    []
+                , Svg.path
+                    [ Svg.Attributes.d
+                        ( "M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 "
+                            ++ "19.8l1.4-1.4M18.4 5.6l1.4-1.4"
+                        )
+                    ]
+                    []
+                ]
+            , Hyper.inline <| Svg.svg
+                [ Svg.Attributes.class "stroke-base-100 fill-base-100 col-start-2 row-start-1"
+                , Svg.Attributes.width "14"
+                , Svg.Attributes.height "14"
+                , Svg.Attributes.viewBox "0 0 24 24"
+                , Svg.Attributes.fill "none"
+                , Svg.Attributes.stroke "currentColor"
+                , Svg.Attributes.strokeWidth "2"
+                , Svg.Attributes.strokeLinecap "round"
+                , Svg.Attributes.strokeLinejoin "round"
+                ]
+                [ Svg.path [ Svg.Attributes.d "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" ] []
+                ]
+            ]
+    
+
+
+-- Hilfsfunktionen
+
+
+when : Bool -> ( a -> a ) -> a -> a
+when pred func value =
+    if pred then func value else value
+
+
+unless : Bool -> ( a -> a ) -> a -> a
+unless pred =
+    when ( not pred )

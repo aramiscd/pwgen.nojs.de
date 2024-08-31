@@ -1,0 +1,36 @@
+module Model exposing
+    ( Model
+    , init
+    )
+
+import Browser.Navigation
+import Pwgen
+import Theme exposing ( Theme )
+import Url exposing ( Url )
+
+
+-- Datenmodell
+type alias Model =
+    { theme : Theme
+    , timeNow : Int
+    , timeLastActivity : Int
+    , showPasswords : Bool
+    , passwords : Array String
+    , pwgenOptions : Pwgen.Options
+    , navigationKey : Browser.Navigation.Key
+    , viewport : { height : Int , width : Int }
+    }
+
+
+-- Startwert für das Datenmodell
+init : Browser.Navigation.Key -> Model
+init key =
+    { passwords = []
+    , timeNow = 0
+    , timeLastActivity = 0
+    , navigationKey = key
+    , showPasswords = True
+    , theme = Theme.default
+    , pwgenOptions = Pwgen.defaultOptions
+    , viewport = { height = 0 , width = 0 }
+    }

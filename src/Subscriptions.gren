@@ -1,0 +1,17 @@
+module Subscriptions exposing
+    ( subscriptions
+    )
+
+import Browser.Events
+import Model exposing ( Model )
+import Msg exposing ( Msg )
+import Time
+
+
+-- Reaktionen auf externe Effekte
+subscriptions : Model -> Sub Msg
+subscriptions mdl =
+    Sub.batch
+        [ Time.every 300 Msg.Tick
+        , Browser.Events.onResize ( \ width height -> Msg.SetViewport { height = height , width = width } )
+        ]

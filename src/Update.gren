@@ -1,0 +1,261 @@
+module Update exposing
+    ( update
+    )
+
+import Browser
+import Cmd
+import LocalStorage
+import Model exposing ( Model )
+import Msg as Msg exposing ( Msg )
+import Pwgen
+import Random
+import Theme
+import Time
+import Url exposing ( Url )
+
+
+type alias Update =
+    Model -> { model : Model , command : Cmd Msg }
+
+
+-- Reagiere auf interne Nachrichten
+update : Msg -> Update
+update msg mdl =
+    case msg of
+    
+        -- Model Updates
+        Msg.SetFromLocalStorage key value -> setFromLocalStorage key value mdl
+        Msg.SetPasswords passwords -> setPasswords passwords mdl
+        Msg.SetTimeLastActivity posixTime -> setTimeLastActivity posixTime mdl
+        Msg.SetViewport viewport -> setViewport viewport mdl        
+
+        -- Befehle
+        Msg.CmdCopyToClipboard string -> cmdCopyToClipboard string mdl
+        Msg.CmdGeneratePasswords -> cmdGeneratePasswords mdl
+        Msg.CmdStore key -> cmdStore key mdl
+        Msg.CmdUrlChange url -> cmdUrlChange url mdl
+        Msg.CmdUrlRequest request -> cmdUrlRequest request mdl        
+
+        -- Kombinationen
+        Msg.Tick posixTime -> tick posixTime mdl
+        Msg.UiPwgenOptionToggle opts -> uiPwgenOptionToggle opts mdl
+        Msg.UiPwgenOptionSlide opts -> uiPwgenOptionSlide opts mdl
+        Msg.UiThemeToggle ->  uiThemeToggle mdl
+
+
+-- Verarbeite ein empfangenes Schlüssel-Wert-Paar aus dem Local Storage
+setFromLocalStorage : String -> Maybe String -> Update
+setFromLocalStorage key maybeValue mdl =
+    { model = case maybeValue of
+        Nothing -> mdl
+        Just value -> case parseString value of
+            Int int -> case key of
+                "howMany" ->
+                    let pwgenOptions = { mdl.pwgenOptions | howMany = int }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                "passwordLength" ->
+                    let pwgenOptions = { mdl.pwgenOptions | passwordLength = int }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                _ -> mdl
+            Float _ -> mdl
+            Bool bool -> case key of
+                "withDigits" ->
+                    let pwgenOptions = { mdl.pwgenOptions | withDigits = bool }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                "withSpecialChars" ->
+                    let pwgenOptions = { mdl.pwgenOptions | withSpecialChars = bool }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                "withLowercaseLetters" ->
+                    let pwgenOptions = { mdl.pwgenOptions | withLowercaseLetters = bool }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                "withUppercaseLetters" ->
+                    let pwgenOptions = { mdl.pwgenOptions | withUppercaseLetters = bool }
+                    in { mdl | pwgenOptions = pwgenOptions }
+                _ -> mdl
+            String string -> case key of
+                "theme" -> case Theme.fromString string of
+                    Just theme -> { mdl | theme = theme }
+                    Nothing -> mdl
+                _ -> mdl
+    , command = Cmd.none
+    }
+
+
+-- Speichere generierte Passwörter
+setPasswords : Array String -> Update
+setPasswords passwords mdl =
+    { model = { mdl | passwords = passwords }
+    , command = Cmd.none
+    }
+
+
+-- Speichere die Zeit der letzten Aktivität
+setTimeLastActivity : Time.Posix -> Update
+setTimeLastActivity posixTime mdl =
+    { model = { mdl | timeLastActivity = Time.posixToMillis posixTime }
+    , command = Cmd.none
+    }
+
+
+-- Speichere die Höhe und Breite der Anzeige
+setViewport : { height : Int , width : Int } -> Update
+setViewport viewport mdl =
+    { model = { mdl | viewport = viewport }
+    , command = Cmd.none
+    }
+
+
+-- Kopiere einen Text in die Zwischenablage
+cmdCopyToClipboard : String -> Update
+cmdCopyToClipboard string mdl =
+    { model = mdl
+    , command = Cmd.copyToClipboard string
+    }
+
+
+-- Generiere Passwörter
+cmdGeneratePasswords : Update
+cmdGeneratePasswords mdl =
+    { model = mdl
+    , command = Cmd.generatePasswords mdl.pwgenOptions
+    }
+
+
+-- Speichere ein Schlüssel-Wert-Paar im Local Storage
+cmdStore : String -> Update
+cmdStore key mdl =
+    let
+        value =
+            case key of
+                "theme" -> Theme.toString mdl.theme
+                "howMany" -> String.fromInt mdl.pwgenOptions.howMany
+                "passwordLength" -> String.fromInt mdl.pwgenOptions.passwordLength
+                "withSpecialChars" -> fromBool mdl.pwgenOptions.withSpecialChars
+                "withLowercaseLetters" -> fromBool mdl.pwgenOptions.withLowercaseLetters
+                "withUppercaseLetters" -> fromBool mdl.pwgenOptions.withUppercaseLetters
+                _ -> "???"
+    in
+        { model = mdl
+        , command = Cmd.localStorageSet key value
+        }
+
+
+-- Reagiere auf veränderten URL
+cmdUrlChange : Url -> Update
+cmdUrlChange url mdl =
+    { model = mdl
+    , command = Cmd.none
+    }
+
+
+-- Verarbeite URL-Anfrage
+cmdUrlRequest : Browser.UrlRequest -> Update
+cmdUrlRequest request mdl =
+    { model = mdl
+    , command =
+        case request of
+            Browser.Internal url -> Cmd.none
+            Browser.External urlString -> Cmd.openInNewTab urlString
+    }
+
+
+-- Speichere die aktuelle Zeit
+tick : Time.Posix -> Update
+tick posixTime mdl =
+    { model = { mdl | timeNow = Time.posixToMillis posixTime }
+    , command =
+        Cmd.when
+            ( Array.all ( (==) True )
+                [ mdl.timeLastActivity > mdl.timeNow - 600 
+                , mdl.timeLastActivity <= mdl.timeNow - 300
+                ]
+            )
+            ( Cmd.generatePasswords mdl.pwgenOptions )
+    }
+
+
+-- Setze Pwgen Options im Model, speichere sie im Local Storage, generiere Passwörter.
+-- Hinweis: Wir verhindern den Fall, dass das Passwortalphabet leer ist.
+uiPwgenOptionToggle : Pwgen.Options -> Update
+uiPwgenOptionToggle opts mdl =
+    if 
+        Array.all not
+            [ opts.withDigits
+            , opts.withLowercaseLetters
+            , opts.withUppercaseLetters
+            , opts.withSpecialChars
+            ]
+    then
+        { model = mdl
+        , command = Cmd.none
+        }
+    else
+        { model = { mdl | pwgenOptions = opts }
+        , command = 
+            Cmd.batch
+                [ Cmd.generatePasswords opts
+                , Cmd.storePwgenOptions opts
+                ]
+        }
+
+
+-- Setze Pwgen Options im Model, speichere sie im Local Storage.
+-- Hinweis: Wir generieren während der Bedienung eines Reglers keine neuen Passwörter.
+uiPwgenOptionSlide : Pwgen.Options -> Update
+uiPwgenOptionSlide opts mdl =
+    { model =
+        { mdl
+            | pwgenOptions = opts
+            , timeLastActivity = mdl.timeNow
+        }
+    , command =
+        Cmd.storePwgenOptions opts
+    }
+
+
+-- Setze das Theme im Model und speichere es im Local Storage
+uiThemeToggle : Update
+uiThemeToggle mdl =
+    let
+        newTheme = Theme.toggle mdl.theme
+    in
+        { model = { mdl | theme = newTheme }
+        , command = Cmd.localStorageSet "theme" ( Theme.toString newTheme )
+        }
+
+
+
+-- Hilfsfunktionen
+
+
+stub : Update
+stub mdl =
+    { model = mdl , command = Cmd.none }
+
+
+type ParseString
+    = Int Int
+    | Float Float
+    | Bool Bool
+    | String String
+
+
+parseString : String -> ParseString
+parseString string =
+    case String.toInt string of
+        Just int -> Int int
+        Nothing ->
+            case String.toFloat string of
+                Just float -> Float float
+                Nothing ->
+                    case string of
+                        "false" -> Bool False
+                        "true" -> Bool True
+                        _ -> String string
+
+
+fromBool : Bool -> String
+fromBool bool =
+    case bool of
+        False -> "false"
+        True -> "true"
