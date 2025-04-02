@@ -9,14 +9,12 @@ kein Datenaustausch über das Netzwerk aufgelistet wird, weißt du, dass
 auch die Passwörter nicht heimlich irgendwohin gesendet worden sind.
 
 
-# Das reicht mir nicht!  Siehe Dieselgate!
+# Das reicht mir nicht!
 
 Im Jahr 2015 wurde öffentlich, dass die Dieselfahrzeuge der Volkswagen
 AG (und anderer deutscher Autohersteller) mit einer Motorsteuerung
 ausgestatten waren, die den Motor auf dem Abgasprüfstand anders steuert
-als auf der Straße, um die Abgasprüfverfahren zu bestehen, ohne dafür
-im Normalgebrauch eine entsprechend geringere Motorleistung zu haben,
-die sich vermutlich negativ auf die Verkaufszahlen niedergeschlagen hätte.
+als auf der Straße.
 
 Analog könnte ein Online-Passwort-Generator, der im Normalbetrieb
 Passwörter protokolliert, vielleicht irgendwie erkennen, ob er unter
