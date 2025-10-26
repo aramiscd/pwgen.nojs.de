@@ -163,7 +163,7 @@ footer =
         [ Hyper.div
             |> Hyper.children
                 [ Hyper.a
-                    |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/src/Main.gren"
+                    |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/"
                     |> Hyper.children [ Hyper.text "Quelltext" ]
                 ]
         , Hyper.div

@@ -1,3 +1,3 @@
 # pwgen.nojs.de
 
-Online-Passwort-Generator
+Passwortgenerator.  Entwickelt mit [Gren](https://gren-lang.org/).
