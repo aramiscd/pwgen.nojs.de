@@ -40,56 +40,56 @@ app mdl =
 header : Model -> Hyper.Node Msg
 header mdl =
     Hyper.div
-        |> Hyper.class "flex flex-row justify-between gap-2 w-96 px-8"
-        |> Hyper.children
-            [ Hyper.h1
-                |> Hyper.class "text-xl font-ight tracking-wide"
-                |> Hyper.children [ Hyper.text "Erzeuge Passwörter" ]
-            , Components.themeController mdl.theme
-            ]
+    |> Hyper.class "flex flex-row justify-between gap-2 w-96 px-8"
+    |> Hyper.children
+        [ Hyper.h1
+            |> Hyper.class "text-xl font-ight tracking-wide"
+            |> Hyper.children [ Hyper.text "Erzeuge Passwörter" ]
+        , Components.themeController mdl.theme
+        ]
 
 
 -- Optionen
 options : Pwgen.Options -> Hyper.Node Msg
 options opts =
     Hyper.div
-        |> Hyper.class "card bg-base-300 w-96"
-        |> Hyper.children
-            [ Hyper.div
-                |> Hyper.class "card-body"
-                |> Hyper.children
-                    [ toggles opts
-                    , sliders opts
-                    ]
-            ]
+    |> Hyper.class "card bg-base-300 w-96"
+    |> Hyper.children
+        [ Hyper.div
+            |> Hyper.class "card-body"
+            |> Hyper.children
+                [ toggles opts
+                , sliders opts
+                ]
+        ]
 
 
 -- Schalter
 toggles : Pwgen.Options -> Hyper.Node Msg
 toggles opts =
     Hyper.div
-        |> Hyper.children
-            [ Components.labeledCheckbox
-                { label = "Verwende Kleinbuchstaben"
-                , checked = opts.withLowercaseLetters
-                , inputMsg = Msg.UiPwgenOptionToggle { opts | withLowercaseLetters = not opts.withLowercaseLetters }
-                }
-            , Components.labeledCheckbox
-                { label = "Verwende Großbuchstaben"
-                , checked = opts.withUppercaseLetters
-                , inputMsg = Msg.UiPwgenOptionToggle { opts | withUppercaseLetters = not opts.withUppercaseLetters }
-                }
-            , Components.labeledCheckbox
-                { label = "Verwende Ziffern"
-                , checked = opts.withDigits
-                , inputMsg = Msg.UiPwgenOptionToggle { opts | withDigits = not opts.withDigits }
-                }
-            , Components.labeledCheckbox
-                { label = "Verwende Sonderzeichen"
-                , checked = opts.withSpecialChars
-                , inputMsg = Msg.UiPwgenOptionToggle { opts | withSpecialChars = not opts.withSpecialChars }
-                }
-            ]
+    |> Hyper.children
+        [ Components.labeledCheckbox
+            { label = "Verwende Kleinbuchstaben"
+            , checked = opts.withLowercaseLetters
+            , inputMsg = Msg.UiPwgenOptionToggle { opts | withLowercaseLetters = not opts.withLowercaseLetters }
+            }
+        , Components.labeledCheckbox
+            { label = "Verwende Großbuchstaben"
+            , checked = opts.withUppercaseLetters
+            , inputMsg = Msg.UiPwgenOptionToggle { opts | withUppercaseLetters = not opts.withUppercaseLetters }
+            }
+        , Components.labeledCheckbox
+            { label = "Verwende Ziffern"
+            , checked = opts.withDigits
+            , inputMsg = Msg.UiPwgenOptionToggle { opts | withDigits = not opts.withDigits }
+            }
+        , Components.labeledCheckbox
+            { label = "Verwende Sonderzeichen"
+            , checked = opts.withSpecialChars
+            , inputMsg = Msg.UiPwgenOptionToggle { opts | withSpecialChars = not opts.withSpecialChars }
+            }
+        ]
 
 
 -- Schieberegler
@@ -112,30 +112,30 @@ sliders opts =
                 { opts | howMany = String.toInt input |> Maybe.withDefault opts.howMany }
     in
         Hyper.div
-            |> Hyper.children
-                [ Components.labeledSlider
-                    { label = label1
-                    , value = opts.passwordLength
-                    , valueMin = opts.passwordLengthMin
-                    , valueMax = opts.passwordLengthMax
-                    , inputMsg = inputMsg1
-                    }
-                , Components.labeledSlider
-                    { label = label2
-                    , value = opts.howMany
-                    , valueMin = opts.howManyMin
-                    , valueMax = opts.howManyMax
-                    , inputMsg = inputMsg2
-                    } 
-                ]
+        |> Hyper.children
+            [ Components.labeledSlider
+                { label = label1
+                , value = opts.passwordLength
+                , valueMin = opts.passwordLengthMin
+                , valueMax = opts.passwordLengthMax
+                , inputMsg = inputMsg1
+                }
+            , Components.labeledSlider
+                { label = label2
+                , value = opts.howMany
+                , valueMin = opts.howManyMin
+                , valueMax = opts.howManyMax
+                , inputMsg = inputMsg2
+                } 
+            ]
 
 
 -- Passwörter
 passwords : Array String -> Hyper.Node Msg
 passwords pws =
     Hyper.div
-        |> Hyper.class "flex flex-col items-center gap-2 truncate py-3"
-        |> Hyper.children ( Array.map password pws )
+    |> Hyper.class "flex flex-col items-center gap-2 truncate py-3"
+    |> Hyper.children ( Array.map password pws )
 
 
 -- Passwort
@@ -143,52 +143,39 @@ password : String -> Hyper.Node Msg
 password pw =
     let
         maxLength = 42
+        
         trim str =
-            if String.length str > maxLength
-            then String.left ( maxLength - 1 ) str ++ "…"
+            if String.count str > maxLength
+            then String.takeFirst ( maxLength - 1 ) str ++ "…"
             else str
     in
         Hyper.div
-            |> Hyper.class "btn font-mono bg-base-300 w-96"
-            |> Hyper.onClick ( Msg.CmdCopyToClipboard pw )
-            |> Hyper.children [ Hyper.text ( trim pw ) ]
+        |> Hyper.class "btn font-mono bg-base-300 w-96"
+        |> Hyper.onClick ( Msg.CmdCopyToClipboard pw )
+        |> Hyper.children [ Hyper.text ( trim pw ) ]
 
 
 -- Footer
 footer =
     Hyper.div
-        |> Hyper.class "flex gap-7 pt-7 text-xs text-gray-500"
-        |> Hyper.children
-            [ Hyper.div
-                |> Hyper.children
-                    [ Hyper.a
-                        |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/src/Main.gren"
-                        |> Hyper.children [ Hyper.text "Quelltext" ]
-                    ]
-            , Hyper.div
-                |> Hyper.children
-                    [ Hyper.a
-                        |> Hyper.href "https://raw.githubusercontent.com/aramiscd/pwgen.nojs.de/master/LICENSE"
-                        |> Hyper.children [ Hyper.text "Lizenz" ]
-                    ]
-            , Hyper.div
-                |> Hyper.children
-                    [ Hyper.a
-                        |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/vertrauen.md"
-                        |> Hyper.children [ Hyper.text "Vertrauen" ]
-                    ]
-            ]
-
-
-
--- Hilfsfunktionen
-
-
-when : Bool -> ( a -> a ) -> a -> a
-when pred func value =
-    if pred then func value else value
-
-
-unless : Bool -> ( a -> a ) -> a -> a
-unless pred =
-    when ( not pred )
+    |> Hyper.class "flex gap-7 pt-7 text-xs text-gray-500"
+    |> Hyper.children
+        [ Hyper.div
+            |> Hyper.children
+                [ Hyper.a
+                    |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/src/Main.gren"
+                    |> Hyper.children [ Hyper.text "Quelltext" ]
+                ]
+        , Hyper.div
+            |> Hyper.children
+                [ Hyper.a
+                    |> Hyper.href "https://raw.githubusercontent.com/aramiscd/pwgen.nojs.de/master/LICENSE"
+                    |> Hyper.children [ Hyper.text "Lizenz" ]
+                ]
+        , Hyper.div
+            |> Hyper.children
+                [ Hyper.a
+                    |> Hyper.href "https://github.com/aramiscd/pwgen.nojs.de/blob/master/vertrauen.md"
+                    |> Hyper.children [ Hyper.text "Vertrauen" ]
+                ]
+        ]

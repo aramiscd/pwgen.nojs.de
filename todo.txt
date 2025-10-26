@@ -1,0 +1,2 @@
+- daisyui von 4 auf 5 aktualisieren
+- tailwind via npm installieren

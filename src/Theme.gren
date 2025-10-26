@@ -20,7 +20,7 @@ default = Dark
 -- Übersetze einen String in einen Theme-Wert
 fromString : String -> Maybe Theme
 fromString str =
-    case str of
+    when str is
         "dark" -> Just Dark
         "light" -> Just Light
         _ -> Nothing
@@ -29,13 +29,13 @@ fromString str =
 -- Übersetze einen Theme-Wert in einen String
 toString : Theme -> String
 toString theme =
-    case theme of
+    when theme is
         Dark -> "dark"
         Light -> "light"
 
 
 toggle : Theme -> Theme
 toggle theme =
-    case theme of
+    when theme is
         Dark -> Light
         Light -> Dark

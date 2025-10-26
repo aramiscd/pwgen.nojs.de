@@ -1,6 +1,4 @@
-module Update exposing
-    ( update
-    )
+module Update exposing ( update )
 
 import Browser
 import Cmd
@@ -15,16 +13,16 @@ import Url exposing ( Url )
 
 
 type alias Update =
-    Model -> { model : Model , command : Cmd Msg }
+    Model -> { model : Model, command : Cmd Msg }
 
 
 -- Reagiere auf interne Nachrichten
 update : Msg -> Update
 update msg mdl =
-    case msg of
+    when msg is
     
         -- Model Updates
-        Msg.SetFromLocalStorage key value -> setFromLocalStorage key value mdl
+        Msg.SetFromLocalStorage args -> setFromLocalStorage args.key args.value mdl
         Msg.SetPasswords passwords -> setPasswords passwords mdl
         Msg.SetTimeLastActivity posixTime -> setTimeLastActivity posixTime mdl
         Msg.SetViewport viewport -> setViewport viewport mdl        
@@ -46,10 +44,10 @@ update msg mdl =
 -- Verarbeite ein empfangenes Schlüssel-Wert-Paar aus dem Local Storage
 setFromLocalStorage : String -> Maybe String -> Update
 setFromLocalStorage key maybeValue mdl =
-    { model = case maybeValue of
+    { model = when maybeValue is
         Nothing -> mdl
-        Just value -> case parseString value of
-            Int int -> case key of
+        Just value -> when parseString value is
+            Int int -> when key is
                 "howMany" ->
                     let pwgenOptions = { mdl.pwgenOptions | howMany = int }
                     in { mdl | pwgenOptions = pwgenOptions }
@@ -58,7 +56,7 @@ setFromLocalStorage key maybeValue mdl =
                     in { mdl | pwgenOptions = pwgenOptions }
                 _ -> mdl
             Float _ -> mdl
-            Bool bool -> case key of
+            Bool bool -> when key is
                 "withDigits" ->
                     let pwgenOptions = { mdl.pwgenOptions | withDigits = bool }
                     in { mdl | pwgenOptions = pwgenOptions }
@@ -72,8 +70,8 @@ setFromLocalStorage key maybeValue mdl =
                     let pwgenOptions = { mdl.pwgenOptions | withUppercaseLetters = bool }
                     in { mdl | pwgenOptions = pwgenOptions }
                 _ -> mdl
-            String string -> case key of
-                "theme" -> case Theme.fromString string of
+            String string -> when key is
+                "theme" -> when Theme.fromString string is
                     Just theme -> { mdl | theme = theme }
                     Nothing -> mdl
                 _ -> mdl
@@ -98,7 +96,7 @@ setTimeLastActivity posixTime mdl =
 
 
 -- Speichere die Höhe und Breite der Anzeige
-setViewport : { height : Int , width : Int } -> Update
+setViewport : { height : Int, width : Int } -> Update
 setViewport viewport mdl =
     { model = { mdl | viewport = viewport }
     , command = Cmd.none
@@ -126,7 +124,7 @@ cmdStore : String -> Update
 cmdStore key mdl =
     let
         value =
-            case key of
+            when key is
                 "theme" -> Theme.toString mdl.theme
                 "howMany" -> String.fromInt mdl.pwgenOptions.howMany
                 "passwordLength" -> String.fromInt mdl.pwgenOptions.passwordLength
@@ -153,7 +151,7 @@ cmdUrlRequest : Browser.UrlRequest -> Update
 cmdUrlRequest request mdl =
     { model = mdl
     , command =
-        case request of
+        when request is
             Browser.Internal url -> Cmd.none
             Browser.External urlString -> Cmd.openInNewTab urlString
     }
@@ -164,7 +162,7 @@ tick : Time.Posix -> Update
 tick posixTime mdl =
     { model = { mdl | timeNow = Time.posixToMillis posixTime }
     , command =
-        Cmd.when
+        Cmd.doIf
             ( Array.all ( (==) True )
                 [ mdl.timeLastActivity > mdl.timeNow - 600 
                 , mdl.timeLastActivity <= mdl.timeNow - 300
@@ -230,7 +228,7 @@ uiThemeToggle mdl =
 
 stub : Update
 stub mdl =
-    { model = mdl , command = Cmd.none }
+    { model = mdl, command = Cmd.none }
 
 
 type ParseString
@@ -242,13 +240,13 @@ type ParseString
 
 parseString : String -> ParseString
 parseString string =
-    case String.toInt string of
+    when String.toInt string is
         Just int -> Int int
         Nothing ->
-            case String.toFloat string of
+            when String.toFloat string is
                 Just float -> Float float
                 Nothing ->
-                    case string of
+                    when string is
                         "false" -> Bool False
                         "true" -> Bool True
                         _ -> String string
@@ -256,6 +254,6 @@ parseString string =
 
 fromBool : Bool -> String
 fromBool bool =
-    case bool of
+    when bool is
         False -> "false"
         True -> "true"

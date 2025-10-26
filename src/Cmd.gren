@@ -10,7 +10,7 @@ port module Cmd exposing
     , localStorageSet
     , openInNewTab
     , storePwgenOptions
-    , when
+    , doIf
     )
 
 import Browser.Dom
@@ -73,33 +73,33 @@ initPwgenOptions =
 localStorageClear : Cmd Msg
 localStorageClear =
     LocalStorage.clear
-        |> Task.onError ( \ _ -> Task.succeed {} )
-        |> Task.execute
+    |> Task.onError ( \ _ -> Task.succeed {} )
+    |> Task.execute
 
 
 -- Lies einen Wert aus dem Local Storage
 localStorageGet : String -> Cmd Msg
 localStorageGet key =
     LocalStorage.get key
-        |> Task.map Just
-        |> Task.onError ( \ _ -> Task.succeed Nothing )
-        |> Task.perform ( Msg.SetFromLocalStorage key )
+    |> Task.map Just
+    |> Task.onError ( \ _ -> Task.succeed Nothing )
+    |> Task.perform ( \ value -> Msg.SetFromLocalStorage { key = key, value = value } )
 
 
 -- Lösche ein Schlüssel-Wert-Paar aus dem Local Storage
 localStorageRemove : String -> Cmd Msg
 localStorageRemove key =
     LocalStorage.remove key
-        |> Task.onError ( \ _ -> Task.succeed {} )
-        |> Task.execute
+    |> Task.onError ( \ _ -> Task.succeed {} )
+    |> Task.execute
 
 
 -- Speichere ein Schlüssel-Wert-Paar im Local Storage
 localStorageSet : String -> String -> Cmd Msg
 localStorageSet key value =
     LocalStorage.set key value
-        |> Task.onError ( \ _ -> Task.succeed {} )
-        |> Task.execute
+    |> Task.onError ( \ _ -> Task.succeed {} )
+    |> Task.execute
 
 
 -- Öffne einen URL in einem neuen Browser-Tab (oder Browser-Fenster)
@@ -120,8 +120,8 @@ storePwgenOptions opts =
 
 
 -- Bedingter Befehl
-when : Bool -> Cmd Msg -> Cmd Msg
-when condition command =
+doIf : Bool -> Cmd Msg -> Cmd Msg
+doIf condition command =
     if condition then command else Cmd.none
 
 
@@ -131,6 +131,6 @@ when condition command =
 
 fromBool : Bool -> String
 fromBool bool =
-    case bool of
+    when bool is
         False -> "false"
         True -> "true"

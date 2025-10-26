@@ -42,15 +42,15 @@ defaultOptions =
 generate : Options -> Random.Generator ( Array String )
 generate options =
     generatePassword options
-        |> Random.array options.howMany
+    |> Random.array options.howMany
 
 
 -- Zufallsgenerator für ein Passwort
 generatePassword : Options -> Random.Generator String
 generatePassword options =
     genChar options
-        |> Random.array options.passwordLength
-        |> Random.map String.fromArray
+    |> Random.array options.passwordLength
+    |> Random.map String.fromArray
 
 
 -- Zeichenbasis für ein Passwort
@@ -76,7 +76,7 @@ genChar options =
     , if options.withUppercaseLetters then alphabet.uppercaseLetters else []
     , if options.withSpecialChars then alphabet.specialChars else []
     ]
-        |> Array.flatten
-        |> Array.popFirst
-        |> Maybe.map ( \ x -> Random.uniform x.first x.rest )
-        |> Maybe.withDefault ( Random.uniform '?' [] )
+    |> Array.flatten
+    |> Array.popFirst
+    |> Maybe.map ( \ x -> Random.uniform x.first x.rest )
+    |> Maybe.withDefault ( Random.uniform '?' [] )

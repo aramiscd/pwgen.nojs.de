@@ -1,5 +1,7 @@
 {
-  "devDependencies": {
-    "daisyui": "^4.12.10"
+  "dependencies": {
+    "daisyui": "^4.12.24",
+    "gren-lang": "^0.6.3",
+    "update-browserslist-db": "^1.1.4"
   }
 }

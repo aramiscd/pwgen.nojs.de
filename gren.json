@@ -1,17 +1,16 @@
-{
-    "type": "application",
-    "platform": "browser",
-    "source-directories": [
-        "src"
-    ],
-    "gren-version": "0.4.4",
-    "dependencies": {
-        "direct": {
-            "aramiscd/gren-hyper": "1.5.0",
-            "gren-lang/browser": "4.0.0",
-            "gren-lang/core": "5.0.2",
-            "gren-lang/url": "4.0.0"
-        },
-        "indirect": {}
+{ "type" : "application"
+, "platform" : "browser"
+, "source-directories" :
+    [ "src"
+    ]
+, "gren-version" : "0.6.3"
+, "dependencies" :
+    { "direct" :
+        { "aramiscd/gren-hyper" : "1.6.3"
+        , "gren-lang/browser" : "6.0.1"
+        , "gren-lang/core" : "7.2.1"
+        , "gren-lang/url" : "6.0.0"
+        }
+    , "indirect" : {}
     }
 }

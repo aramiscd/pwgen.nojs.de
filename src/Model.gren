@@ -18,7 +18,7 @@ type alias Model =
     , passwords : Array String
     , pwgenOptions : Pwgen.Options
     , navigationKey : Browser.Navigation.Key
-    , viewport : { height : Int , width : Int }
+    , viewport : { height : Int, width : Int }
     }
 
 
@@ -32,5 +32,5 @@ init key =
     , showPasswords = True
     , theme = Theme.default
     , pwgenOptions = Pwgen.defaultOptions
-    , viewport = { height = 0 , width = 0 }
+    , viewport = { height = 0, width = 0 }
     }

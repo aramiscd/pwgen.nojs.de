@@ -2,7 +2,7 @@
 
 module.exports =
     { content :
-        [ "./app.js"
+        [ "./www/app.js"
         ]
     , theme :
         { extend :

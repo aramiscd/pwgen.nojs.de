@@ -1,6 +1,4 @@
-module Msg exposing
-    ( Msg (..)
-    )
+module Msg exposing ( Msg (..) )
 
 import Browser
 import Pwgen
@@ -12,10 +10,10 @@ import Url exposing ( Url )
 type Msg
 
     -- Model Updates
-    = SetFromLocalStorage String ( Maybe String )
+    = SetFromLocalStorage { key : String, value : Maybe String }
     | SetPasswords ( Array String )
     | SetTimeLastActivity Time.Posix
-    | SetViewport { height : Int , width : Int }
+    | SetViewport { height : Int, width : Int }
     
     -- Befehle
     | CmdCopyToClipboard String

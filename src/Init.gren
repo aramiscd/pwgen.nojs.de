@@ -1,6 +1,4 @@
-module Init exposing
-    ( init
-    )
+module Init exposing ( init )
 
 import Browser.Navigation as Nav
 import Cmd
@@ -10,7 +8,7 @@ import Url exposing ( Url )
 
 
 -- Datenmodell und Effekte für den Start der Anwendung
-init : {} -> Url -> Nav.Key -> { model : Model , command : Cmd Msg }
+init : {} -> Url -> Nav.Key -> { model : Model, command : Cmd Msg }
 init {} url key =
     { model = Model.init key
     , command =
