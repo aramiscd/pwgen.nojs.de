@@ -48,27 +48,15 @@ setFromLocalStorage key maybeValue mdl =
         Nothing -> mdl
         Just value -> when parseString value is
             Int int -> when key is
-                "howMany" ->
-                    let pwgenOptions = { mdl.pwgenOptions | howMany = int }
-                    in { mdl | pwgenOptions = pwgenOptions }
-                "passwordLength" ->
-                    let pwgenOptions = { mdl.pwgenOptions | passwordLength = int }
-                    in { mdl | pwgenOptions = pwgenOptions }
+                "howMany" -> { mdl | pwgenOptions = { mdl.pwgenOptions | howMany = int } }
+                "passwordLength" -> { mdl | pwgenOptions = { mdl.pwgenOptions | passwordLength = int } }
                 _ -> mdl
             Float _ -> mdl
             Bool bool -> when key is
-                "withDigits" ->
-                    let pwgenOptions = { mdl.pwgenOptions | withDigits = bool }
-                    in { mdl | pwgenOptions = pwgenOptions }
-                "withSpecialChars" ->
-                    let pwgenOptions = { mdl.pwgenOptions | withSpecialChars = bool }
-                    in { mdl | pwgenOptions = pwgenOptions }
-                "withLowercaseLetters" ->
-                    let pwgenOptions = { mdl.pwgenOptions | withLowercaseLetters = bool }
-                    in { mdl | pwgenOptions = pwgenOptions }
-                "withUppercaseLetters" ->
-                    let pwgenOptions = { mdl.pwgenOptions | withUppercaseLetters = bool }
-                    in { mdl | pwgenOptions = pwgenOptions }
+                "withDigits" -> { mdl | pwgenOptions = { mdl.pwgenOptions | withDigits = bool } }
+                "withSpecialChars" -> { mdl | pwgenOptions = { mdl.pwgenOptions | withSpecialChars = bool } }
+                "withLowercaseLetters" -> { mdl | pwgenOptions = { mdl.pwgenOptions | withLowercaseLetters = bool } }
+                "withUppercaseLetters" -> { mdl | pwgenOptions = { mdl.pwgenOptions | withUppercaseLetters = bool } }
                 _ -> mdl
             String string -> when key is
                 "theme" -> when Theme.fromString string is

@@ -5902,10 +5902,12 @@ var $gren_lang$browser$Browser$Events$on = F3($gren_lang$browser$Browser$Events$
 var $gren_lang$browser$Browser$Events$onResize = function(func) {
 	return $gren_lang$browser$Browser$Events$on$(1, 'resize', A2($gren_lang$core$Json$Decode$field, 'target', A3($gren_lang$core$Json$Decode$map2, func, A2($gren_lang$core$Json$Decode$field, 'innerWidth', $gren_lang$core$Json$Decode$int), A2($gren_lang$core$Json$Decode$field, 'innerHeight', $gren_lang$core$Json$Decode$int))));
 };
+var $author$project$Subscriptions$setViewport$ = function(width, height) {
+	return $author$project$Msg$SetViewport({ ah: height, aN: width });
+};
+var $author$project$Subscriptions$setViewport = F2($author$project$Subscriptions$setViewport$);
 var $author$project$Subscriptions$subscriptions = function(mdl) {
-	return $gren_lang$core$Platform$Sub$batch([ $gren_lang$core$Time$every$(300, $author$project$Msg$Tick), $gren_lang$browser$Browser$Events$onResize(F2(function(width, height) {
-					return $author$project$Msg$SetViewport({ ah: height, aN: width });
-				})) ]);
+	return $gren_lang$core$Platform$Sub$batch([ $gren_lang$core$Time$every$(300, $author$project$Msg$Tick), $gren_lang$browser$Browser$Events$onResize($author$project$Subscriptions$setViewport) ]);
 };
 var $author$project$Cmd$copyToClipboard = _Platform_outgoingPort('copyToClipboard', $gren_lang$core$Json$Encode$string);
 var $author$project$Update$cmdCopyToClipboard$ = function(string, mdl) {
@@ -6277,11 +6279,9 @@ var $author$project$Update$setFromLocalStorage$ = function(key, maybeValue, mdl)
 					var _int = _v1.a;
 					switch (key) {
 						case 'howMany':
-							var pwgenOptions = _Utils_update(mdl.bn, { a0: _int });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { a0: _int }) });
 						case 'passwordLength':
-							var pwgenOptions = _Utils_update(mdl.bn, { bi: _int });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { bi: _int }) });
 						default:
 							return mdl;
 					}
@@ -6291,17 +6291,13 @@ var $author$project$Update$setFromLocalStorage$ = function(key, maybeValue, mdl)
 					var bool = _v1.a;
 					switch (key) {
 						case 'withDigits':
-							var pwgenOptions = _Utils_update(mdl.bn, { bI: bool });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { bI: bool }) });
 						case 'withSpecialChars':
-							var pwgenOptions = _Utils_update(mdl.bn, { bK: bool });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { bK: bool }) });
 						case 'withLowercaseLetters':
-							var pwgenOptions = _Utils_update(mdl.bn, { bJ: bool });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { bJ: bool }) });
 						case 'withUppercaseLetters':
-							var pwgenOptions = _Utils_update(mdl.bn, { bL: bool });
-							return _Utils_update(mdl, { bn: pwgenOptions });
+							return _Utils_update(mdl, { bn: _Utils_update(mdl.bn, { bL: bool }) });
 						default:
 							return mdl;
 					}

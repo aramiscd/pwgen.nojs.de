@@ -11,5 +11,10 @@ subscriptions : Model -> Sub Msg
 subscriptions mdl =
     Sub.batch
         [ Time.every 300 Msg.Tick
-        , Browser.Events.onResize ( \ width height -> Msg.SetViewport { height = height, width = width } )
+        , Browser.Events.onResize setViewport
         ]
+
+
+setViewport : Int -> Int -> Msg
+setViewport width height =
+    Msg.SetViewport { height = height, width = width }
